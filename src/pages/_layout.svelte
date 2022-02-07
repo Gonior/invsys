@@ -47,14 +47,14 @@
         } 
     }
 </script>
-<div class="h-screen w-full flex flex-col text-base-content py-4 px-2">
+<div class="h-screen max-h-screen w-full flex flex-col text-base-content py-4 px-2">
     <div class="flex justify-between my-2 items-center">
         <h1 class="text-2xl font-bold ">{buttons.find(v => v.active === true).name}</h1>
         {#if buttons.find(v => v.active === true).id === 2}
             <button>cari</button>
         {/if}
     </div>
-    <div class="flex-1">
+    <div class="flex-1 flex flex-col">
         <svelte:component this="{selectedMenu}"/>
     </div>
     <div class="flex items-center justify-around py-2">

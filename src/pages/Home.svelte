@@ -4,27 +4,25 @@
     import CardActivity from '../components/CardActivity.svelte';
     import EmptyState from '../components/EmptyState.svelte'
     import CardLoading from '../components/CardLoading.svelte'
+    import {BASE_URL} from '../store.js'
     import {onMount} from 'svelte'
     let isLoading = true
     const contentCard = [
         {
-            id : 0,
             title : "Jumlah Barang",
-            qty : 234,
+            qty : 0,
             color : "secondary",
             icon : `<path style="fill:none;stroke:currentcolor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="M20 16.5v-9L12 3 4 7.5v9l8 4.5 8-4.5z"/>
                 <path data-name="primary" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="m20 7.5-8 4-8-4M12 11.5V21"/>
                 <path data-name="primary" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="M16 14V9.5l-4-2"/>`
         },
         {
-            id : 1,
             title : "Low Stock",
-            qty : 32,
+            qty : 0,
             color : "warning",
             icon : `<path style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="m3 5 5 6 6-3 7 7"/>
                     <path data-name="primary" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="M21 10v5h-5M3 19h18"/>`
         },{
-            id :2,
             title : "Stok Habis",
             qty : 0,
             color : "error",
@@ -33,59 +31,56 @@
                 <path data-name="primary" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2" d="M16 14V9.5l-4-2"/>`
         }
     ]
-    onMount(() => {
-        setTimeout(() => {
-            isLoading = false
-        }, 3000);
+    
+    onMount(async () => {
+        await getActivities()
+        await getItems()
+        isLoading = false 
     })
-    const activities = [
-        {
-            name : "Ayam Boiler",
-            user : "Dedi C.",
-            reason : "lorem ipsum sir dolor amet consectetur adipisicing elit.",
-            qty : 24,
-            increase : true,
-            unit : "KG",
-            time : "04 Feb 2022 20:13"
-        },
-        {
-            name : "Usus",
-            user : "Dedi C.",
-            reason : "lorem ipsum sir dolor amet consectetur adipisicing elit.",
-            qty : 46,
-            increase : true,
-            unit : "KG",
-            time : "03 Feb 2022 14:13"
-        },
-        {
-            name : "Ayam Boiler",
-            user : "Dedi C.",
-            reason : "lorem ipsum sir dolor amet consectetur adipisicing elit.",
-            qty : 5,
-            increase : false,
-            unit : "KG",
-            time : "04 Feb 2022 20:13"
-        },
-        {
-            name : "Sop Iga",
-            user : "Dedi C.",
-            reason : "lorem ipsum sir dolor amet consectetur adipisicing elit.",
-            qty : 76,
-            increase : true,
-            unit : "KG",
-            time : "04 Feb 2022 15:13"
-        },
-        {
-            name : "Sop Iga",
-            user : "Dedi C.",
-            reason : "lorem ipsum sir dolor amet consectetur adipisicing elit.",
-            qty : 12,
-            increase : false,
-            unit : "KG",
-            time : "04 Feb 2022 20:13"
+
+    const getActivities = async () => {
+        let token = JSON.parse(localStorage.getItem('auth')).token
+        let opt = {
+            headers : {
+                "Content-Type" : "application/json",
+                'Authorization' : token
+            }, 
+            method : "GET"
         }
 
-    ]
+        let url = $BASE_URL+"/activity?limit=5"
+        let req = await fetch(url, opt)
+        if (req.ok) {
+            let data = await req.json()
+            activities = [...data.map(d => {
+                d.doing = d.do
+                delete d.do
+                return d
+            })]
+        }
+    }
+    const getItems =  async () => {
+        let token = JSON.parse(localStorage.getItem('auth')).token
+        let opt = {
+            headers : {
+                "Content-Type" : "application/json",
+                'Authorization' : token
+            }, 
+            method : "GET"
+        }
+
+        let url = $BASE_URL+"/item"
+        let req = await fetch(url, opt)
+        if (req.ok) {
+            let data = await req.json()
+            
+            contentCard[0].qty = data.length
+            contentCard[1].qty = data.filter(d => d.qty <= d.min).length
+            contentCard[2].qty = data.filter(d => d.qty === 0).length
+        }
+    }
+    
+    let activities = []
 </script>
 
 <div class="flex flex-col px-3 h-full">

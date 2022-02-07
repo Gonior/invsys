@@ -177,14 +177,12 @@
 {#if showAlert.show}
     <Alert {...showAlert} />
 {/if}
-{#if isLoading}
-    <LoadingState />
-{/if}
+
 {#if showModal.open && showModal.modal === "addCategory"}
     <ModalAddCategory showModal={showModal.open} on:closeModal={handleCloseModal} />
 {:else if showModal.open && showModal.modal === "addProduct"}
     <ModalAddProduct showModal={showModal.open} on:closeModal={handleCloseModal} />    
-{:else}
+{:else if showModal.open && showModal.modal === "detailProduct"}
     <DetailStock showModal = {showModal.open} item={showModal.item} on:closeModal={handleCloseModal} />
 {/if}
 
@@ -199,6 +197,9 @@
     </div>
 </div>
 <div class="flex relative h-full flex-col">
+    {#if isLoading}
+        <LoadingState />
+    {/if}
     <div class="dropdown dropdown-left dropdown-end absolute z-10 right-2 bottom-2">
         <button tabindex="0" class="btn btn-circle btn-sm btn-primary shadow">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -233,7 +234,7 @@
         {/each}
     </div>
     <h1 class="uppercase opacity-50 text-xs my-2">List barang</h1>
-    <div class="flex flex-1 overflow-y-auto no-scrollbar flex-col">
+    <div class="overflow-y-auto no-scrollbar flex-col pb-5" style="height: 70vh;">
         {#each filterItems as item}
             <CardProduct {...item} on:openDetailProduct={handleOpenDetail} />
         {:else}
