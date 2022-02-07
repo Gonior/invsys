@@ -52,7 +52,7 @@
     <Alert {...showAlert} />
 {/if}
 
-<div class="flex justify-center items-center h-full">
+<div class="flex justify-center items-center h-full px-4">
     <div class="card bg-base-200 flex p-4 shadow-lg text-base-content flex-col">
         <div>
             <h1 class="text-2xl font-semibold">Selamat Datang :)</h1>

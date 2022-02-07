@@ -5,7 +5,12 @@
     import EmptyState from '../components/EmptyState.svelte'
     import Alert from '../components/Alert.svelte'
     import ModalAddCategory from '../components/ModalAddCategory.svelte'
+    import ModalAddProduct from '../components/ModalAddProduct.svelte'
+    import CardProduct from '../components/CardProduct.svelte'
+    import DetailStock from './DetailStock.svelte'
     let categories = []
+    let keyword = ""
+    let filterItems = []
     let selectedCategory = {}
     let items = []
     let isLoading = true
@@ -33,6 +38,7 @@
                 'Content-Type' : "application/json",
                 'Authorization' : token
             }, 
+            
             method : "GET"
         })
         
@@ -56,13 +62,12 @@
         })
         if (res.ok) {
             let data = await res.json()
-            
-            return data
-        }
+            items = [...data]  
+            filterItems = [...items]
+        } 
     }
     
     const openModal = (modal) => {
-        console.log(modal)
         if (modal === 'addProduct') {
             showModal.open = true
             showModal.modal = modal
@@ -73,17 +78,20 @@
     }
 
     const changeCategory= (id) => {
-        
+        keyword = ""
         if (categories.find(v => v.active === true)._id !== id) {
-            console.log('yahallo')
             categories = [...categories.map((v) => {
                 v.active = false
                 return v
             })]
             categories.find(v => v._id === id).active = true
             categories = [...categories]
-            // localStorage.setItem('selectedMenu', id)
-        } 
+            let selectedCategoryId = categories.find(v => v.active === true)._id
+            if (selectedCategoryId !== "1222") {
+                filterItems = [...items.filter(v => v.category._id === selectedCategoryId)]
+            } else filterItems = [...items]
+        }
+
     }
     let intervalId;
     let i = 0;
@@ -103,7 +111,7 @@
         i = 0
     }
     const deleteCategory = async (category) => {
-        let isLoadingDelete = true
+        isLoadingDelete = true
         let token = JSON.parse(localStorage.getItem('auth')).token
         let req = await fetch($BASE_URL+`/category/${category._id}`,{
             headers : {
@@ -123,7 +131,7 @@
             
             handleShowAlert(res.message,"error" )
         }
-        
+        isLoadingDelete = true
     }
     const handleShowAlert = (msg, type) => {
         showAlert.show = true
@@ -136,9 +144,33 @@
     }
 
     const handleCloseModal = async (e) => {
+
         showModal.open = e.detail.showModal
         await getCategories()
+        await getItem()
 
+    }
+
+    const handleOpenDetail = (e) => {
+        showModal.open = true
+        showModal.modal = "detailProduct"
+        showModal.item = e.detail.item
+    }
+
+    const searchEvent = () => {
+        if (!keyword) {
+            let selectedCategoryId = categories.find(v => v.active === true)._id
+            if (selectedCategoryId !== "1222") {
+                filterItems = [...items.filter(v => v.category._id === selectedCategoryId)]
+            } else filterItems = [...items]
+        }
+        else {
+            let selectedCategoryId = categories.find(v => v.active === true)._id
+            if (selectedCategoryId !== "1222") {
+                filterItems = [...filterItems.filter(v => v.name.toLowerCase().includes(keyword.toLowerCase()))]
+            } else filterItems = [...items.filter(v => v.name.toLowerCase().includes(keyword.toLowerCase()))]
+            
+        }
     }
 </script>
 
@@ -148,9 +180,14 @@
 {#if isLoading}
     <LoadingState />
 {/if}
-{#if showModal.open}
+{#if showModal.open && showModal.modal === "addCategory"}
     <ModalAddCategory showModal={showModal.open} on:closeModal={handleCloseModal} />
+{:else if showModal.open && showModal.modal === "addProduct"}
+    <ModalAddProduct showModal={showModal.open} on:closeModal={handleCloseModal} />    
+{:else}
+    <DetailStock showModal = {showModal.open} item={showModal.item} on:closeModal={handleCloseModal} />
 {/if}
+
 <input type="checkbox" bind:checked="{openModalDelete}" class="modal-toggle"> 
 <div class="modal">
     <div class="modal-box select-none" >
@@ -177,23 +214,33 @@
             </li> 
         </ul>
     </div>
-
-    <div class="flex overflow-x-auto space-x-2 no-scrollbar">
+    <div class="mb-2 relative">
+        <div class="flex-1">
+            <input on:keyup="{searchEvent}" type="text" bind:value="{keyword}" class="rounded-lg w-full py-2 pr-2 pl-10 bg-base-200 border-none focus:outline-none" placeholder="Cari barang..">
+        </div>
+        <div class="absolute inset-y-0 flex justify-center items-center left-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 text-base-content text-opacity-80"><path d="M19 11a8 8 0 1 1-8-8 8 8 0 0 1 8 8Zm2 10-4.34-4.34" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2"/></svg>
+        </div>
+        
+    </div>
+    <div class="flex overflow-x-scroll space-x-2 no-scrollbar">
         {#each categories as category}
-        <div on:mousedown="{holdEvent(category)}" on:touchstart="{holdEvent(category)}" on:touchend={releaseEvent(category)} on:mouseup="{releaseEvent(category)}" on:click={() => changeCategory(category._id)} class="cursor-pointer px-2 rounded-full select-none {category.active ? "bg-primary" : ""}" >
+        <div on:mousedown="{holdEvent(category)}" on:touchstart="{holdEvent(category)}" on:touchend={releaseEvent(category)} on:mouseup="{releaseEvent(category)}" on:click={() => changeCategory(category._id)} class="whitespace-nowrap text-xs cursor-pointer px-2 rounded-full select-none {category.active ? "bg-primary" : ""}" >
             {category.name}
         </div>
-
-            
         {:else}
         <p>Belum ada kategori</p>
         {/each}
     </div>
-    <div class="flex flex-1 justify-center">
-        {#each items as item}
-            {item}    
+    <h1 class="uppercase opacity-50 text-xs my-2">List barang</h1>
+    <div class="flex flex-1 overflow-y-auto no-scrollbar flex-col">
+        {#each filterItems as item}
+            <CardProduct {...item} on:openDetailProduct={handleOpenDetail} />
         {:else}
-        <EmptyState msg ="belum ada item"/>
+        <div class="m-auto">
+
+            <EmptyState msg ="belum ada item"/>
+        </div>
         {/each}
     </div>
 </div>
