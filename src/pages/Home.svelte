@@ -75,7 +75,7 @@
             let data = await req.json()
             
             contentCard[0].qty = data.length
-            contentCard[1].qty = data.filter(d => d.qty <= d.min).length
+            contentCard[1].qty = data.filter(d => d.qty <= d.min && d.qty > 0).length
             contentCard[2].qty = data.filter(d => d.qty === 0).length
         }
     }
