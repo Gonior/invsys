@@ -11,9 +11,13 @@
 </script>
 
 <div class="flex border-l-2 {typeOfActivity === "increase" ? 'border-success' : 'border-error'} pl-3 rounded">
+    {#if !itemId}
+    <p class="italic text-base-content text-opacity-80 text-xs">barang sudah tidak tersedia</p>
+    {:else}
     <div class="flex-1 flex-col">
         <div class="flex space-x-2 items-center">
-            <h1 class="font-bold">{itemId.name}</h1>
+            
+            <h1 class="font-bold">{itemId.name ? itemId.name : "Item Sudah"}</h1>
             <div class="px-2 rounded-full {typeOfActivity === "increase" ? 'bg-success' : 'bg-error'} bg-opacity-30"><span class="{typeOfActivity === "increase" ? 'text-success' : 'text-error'} text-xs font-semibold">{typeOfActivity === "increase" ? "+" : "-"} {value} {itemId.unit} </span></div>
         </div>
         <p class="opacity-50 text-xs">{doing}</p>
@@ -23,4 +27,6 @@
         <span class="text-xs opacity-50">{timeAgo.format(new Date(date).valueOf() - 60 * 1000)}</span>
         <div class="text-xs "><span class="opacity-50 ">by</span> <span class="opacity-100">{userId.name}</span></div>
     </div>
+    {/if}
+    
 </div>
