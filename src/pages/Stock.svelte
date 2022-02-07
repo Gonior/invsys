@@ -131,7 +131,7 @@
             
             handleShowAlert(res.message,"error" )
         }
-        isLoadingDelete = true
+        isLoadingDelete = false
     }
     const handleShowAlert = (msg, type) => {
         showAlert.show = true
