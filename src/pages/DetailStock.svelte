@@ -264,6 +264,10 @@
                 <h4 class="text-opacity-60 text-xs text-base-content">Satuan</h4>
                 <h1 class="font-bold">{item.unit}</h1>
             </div>
+            <div class="flex justify-between items-center">
+                <h4 class="text-opacity-60 text-xs text-base-content">Kategori</h4>
+                <h1 class="font-bold">{item.category.name}</h1>
+            </div>
         </div>
         <h1 class="uppercase opacity-50 text-xs my-2 font-bold">Aktifitas</h1>
         <div class="flex-1 flex no-scrollbar overflow-y-auto flex-col px-4 py-2 space-y-2">

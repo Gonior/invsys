@@ -133,7 +133,7 @@
                 <div class="flex w-full space-x-2">
                     <div class="flex flex-col flex-1">
                         <span class="label-text mb-1">Kuantitas</span>
-                        <input type="number" bind:value="{item.qty}"  class="w-full border-none p-2 bg-base-200 rounded-lg outline-none focus:ring-2 focus:ring-base-content focus:ring-offset-2" required> 
+                        <input type="number" bind:value="{item.qty}" step="0.1" class="w-full border-none p-2 bg-base-200 rounded-lg outline-none focus:ring-2 focus:ring-base-content focus:ring-offset-2" required> 
                         <span class="text-2xs">{errors.find(v => v.field === "qty") ? errors.find(v => v.field === "qty").message : ""}</span>
                     </div> 
                     <div class="flex flex-col flex-1">
